@@ -80,6 +80,7 @@ jobs:
 
   sonar-scanner:
     resource_class: medium
+    circleci_ip_ranges: true
     executor: scanner
     steps:
       - sonar-scanner
