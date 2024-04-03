@@ -56,7 +56,7 @@ jobs:
           username: hozanaci
           password: $DOCKERHUB_PASSWORD
     environment: 
-      DOCKER_IMAGE: hozanaci/mysql
+      DOCKER_IMAGE: hozanaci/rabbitmq
       DOCKERHUB_USERNAME: hozanaci
     
     steps:
@@ -92,7 +92,7 @@ jobs:
           username: hozanaci
           password: $DOCKERHUB_PASSWORD
     environment: 
-      DOCKER_IMAGE: hozanaci/mysql
+      DOCKER_IMAGE: hozanaci/rabbitmq
       DOCKERHUB_USERNAME: hozanaci
     
     steps:
