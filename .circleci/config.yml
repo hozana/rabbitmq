@@ -1,52 +1,5 @@
 version: 2.1
 
-executors:
-  scanner:
-    docker:
-      - image: openjdk:11
-
-commands:
-  sonar-scanner:
-    description: Check Code Quality
-    parameters:
-      sonar_server_url:
-        type: string
-        description: "URL of your SonarQube server. e.g.: http://my.sonarqube,server:9000"
-        default: "$SONAR_SERVER_URL"
-      sonar_token:
-        description: "Authentication key (sonar.login paramter) to access SonarQube and perform analysis"
-        type: string
-        default: "$SONAR_TOKEN"
-      sonar_project_key:
-        description: "Project key"
-        type: string
-        default: "$SONAR_PROJECT_KEY"
-      sonar_sources:
-        description: "Where the files are located?"
-        type: string
-        default: "./"
-
-    steps:
-        - checkout
-        - run:
-            name: Install Sonarqube scanner
-            command: |
-                wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873.zip
-                unzip sonar-scanner-cli-4.2.0.1873.zip
-        - run:
-            name: Run Sonarscanner
-            command: |
-                export SONAR_SCANNER_OPTS="-Xmx2048m"
-                eval ./sonar-scanner-4.2.0.1873/bin/sonar-scanner \
-                -Dsonar.projectKey=<< parameters.sonar_project_key >> \
-                -Dsonar.host.url=<< parameters.sonar_server_url >> \
-                -Dsonar.sources=<< parameters.sonar_sources >> \
-                -Dsonar.token=<< parameters.sonar_token >> \
-                -Dsonar.scm.provider=git \
-                -Dsonar.skipPackageDesign=true \
-                -Dsonar.scm.exclusions.disabled \
-                -X
-
 jobs:
   build:
     resource_class: medium
@@ -77,13 +30,6 @@ jobs:
           name: Save image to dockerHub registry
           command: |
             docker push $DOCKER_IMAGE:${CIRCLE_SHA1}
-
-  sonar-scanner:
-    resource_class: medium
-    circleci_ip_ranges: true
-    executor: scanner
-    steps:
-      - sonar-scanner
   
   deploy:
     resource_class: medium
@@ -127,13 +73,5 @@ workflows:
           filters:
             branches:
               only:
-                - develop
-                - master
-
-      - sonar-scanner:
-          context: lineclass
-          filters:
-            branches:
-              only: 
                 - develop
                 - master
