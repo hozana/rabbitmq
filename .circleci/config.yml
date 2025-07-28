@@ -38,7 +38,6 @@ jobs:
             echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
             export DOCKER_BUILDKIT=1
             docker buildx build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} --push .
-            # DOCKER_BUILDKIT=1 docker build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} .
 
   deploy:
     resource_class: medium
