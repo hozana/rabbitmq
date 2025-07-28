@@ -24,7 +24,7 @@ jobs:
           name: Build application Docker image
           command: |
             echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
-            docker build --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} .
+            DOCKER_BUILDKIT=1 docker build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} .
 
       - run:
           name: Save image to dockerHub registry
