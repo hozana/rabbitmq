@@ -23,6 +23,7 @@ jobs:
       - run:
           name: Activate experimenta features
           command: |
+            mkdir -p ~/.docker
             echo '{"experimental": true}' > ~/.docker/daemon.json
 
       - run:
