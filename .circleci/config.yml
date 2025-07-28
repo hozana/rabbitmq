@@ -8,10 +8,10 @@ jobs:
         auth:
           username: hozanaci
           password: $DOCKERHUB_PASSWORD
-    environment: 
+    environment:
       DOCKER_IMAGE: hozanaci/rabbitmq
       DOCKERHUB_USERNAME: hozanaci
-    
+
     steps:
       - checkout
       - setup_remote_docker
@@ -21,7 +21,7 @@ jobs:
             apk --update add --no-cache docker docker-cli-compose git
 
       - run:
-          name: Activate experimenta features
+          name: Activate experimental features
           command: |
             mkdir -p ~/.docker
             echo '{"experimental": true}' > ~/.docker/daemon.json
@@ -57,19 +57,35 @@ jobs:
           name: Install dependencies
           command: |
             apk --update add --no-cache docker docker-cli-compose git
+
+      - run:
+          name: Activate experimental features
+          command: |
+            mkdir -p ~/.docker
+            echo '{"experimental": true}' > ~/.docker/daemon.json
+
+      - run:
+          name: Create a new builder
+          command: |
+            docker buildx create --use --name hozana-builder
+            docker buildx inspect --bootstrap
+
       - run:
           name: Login into DockerHub
           command: |
             echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
       - run:
           name: Recover release candidate
           command: |
             docker pull $DOCKER_IMAGE:${CIRCLE_SHA1}
+
       - run:
-          name: Publish image to :branchname tag
+          name: Build application Docker image & publish image to :branchname tag
           command: |
-            docker tag $DOCKER_IMAGE:${CIRCLE_SHA1} $DOCKER_IMAGE:${CIRCLE_BRANCH}
-            docker push $DOCKER_IMAGE:${CIRCLE_BRANCH}
+            echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
+            export DOCKER_BUILDKIT=1
+            docker buildx build --provenance=true -t $DOCKER_IMAGE:${CIRCLE_BRANCH} --push .
 
 # Orchestrate our job run sequence
 workflows:
