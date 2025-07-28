@@ -4,7 +4,7 @@ jobs:
   build:
     resource_class: medium
     docker:
-      - image: docker:24.0.0
+      - image: docker:25.0.2
         auth:
           username: hozanaci
           password: $DOCKERHUB_PASSWORD
@@ -21,10 +21,23 @@ jobs:
             apk --update add --no-cache docker docker-cli-compose git
 
       - run:
+          name: Activate experimenta features
+          command: |
+            echo '{"experimental": true}' > /etc/docker/daemon.json
+
+      - run:
+          name: Create a new builder
+          command: |
+            docker buildx create --use --name hozana-builder
+            docker buildx inspect --bootstrap
+
+      - run:
           name: Build application Docker image
           command: |
             echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
-            DOCKER_BUILDKIT=1 docker build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} .
+            export DOCKER_BUILDKIT=1
+            docker buildx build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} --push .
+            # DOCKER_BUILDKIT=1 docker build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} .
 
       - run:
           name: Save image to dockerHub registry
@@ -34,7 +47,7 @@ jobs:
   deploy:
     resource_class: medium
     docker:
-      - image: docker:24.0.0
+      - image: docker:25.0.2
         auth:
           username: hozanaci
           password: $DOCKERHUB_PASSWORD
