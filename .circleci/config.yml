@@ -23,7 +23,7 @@ jobs:
       - run:
           name: Activate experimenta features
           command: |
-            echo '{"experimental": true}' > /etc/docker/daemon.json
+            echo '{"experimental": true}' > ~/.docker/daemon.json
 
       - run:
           name: Create a new builder
