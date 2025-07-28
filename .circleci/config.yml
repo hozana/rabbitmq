@@ -29,7 +29,7 @@ jobs:
       - run:
           name: Create a new builder
           command: |
-            docker buildx create --use --name hozana-builder
+            docker buildx create --use --name hozana-builder --driver docker-container
             docker buildx inspect --bootstrap
 
       - run:
@@ -39,7 +39,7 @@ jobs:
             export DOCKER_BUILDKIT=1
             docker buildx build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} --push .
             # DOCKER_BUILDKIT=1 docker build --provenance=true --no-cache -t $DOCKER_IMAGE:${CIRCLE_SHA1} .
-  
+
   deploy:
     resource_class: medium
     docker:
@@ -47,11 +47,12 @@ jobs:
         auth:
           username: hozanaci
           password: $DOCKERHUB_PASSWORD
-    environment: 
+    environment:
       DOCKER_IMAGE: hozanaci/rabbitmq
       DOCKERHUB_USERNAME: hozanaci
-    
+
     steps:
+      - checkout
       - setup_remote_docker
       - run:
           name: Install dependencies
